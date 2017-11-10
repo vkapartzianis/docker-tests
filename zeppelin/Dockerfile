@@ -104,9 +104,9 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "dfs.replication" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "1" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     # TODO: check if authorization needed
-    ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
-    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
-    chmod 0600 ~/.ssh/authorized_keys && \
+    # ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
+    # cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
+    # chmod 0600 ~/.ssh/authorized_keys && \
     # TODO: retrieve user name from environment
     export PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin && \
     hdfs namenode -format && \
