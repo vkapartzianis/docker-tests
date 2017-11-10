@@ -25,7 +25,8 @@ ENV LOG_TAG="[ZEPPELIN_${Z_VERSION}]:" \
 
 # try and disable ipv6 first -- this is needed in docker containers only
 RUN echo "$LOG_TAG Disable ipv6" && \
-    sysctl -w net.ipv6.conf.all.disable_ipv6=1
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1 && \
+    echo -e "Host *\n    AddressFamily inet" >> ~/.ssh/config
 ENV _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
 
 RUN echo "$LOG_TAG update and install basic packages" && \
