@@ -113,7 +113,7 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
 # try and disable ipv6 first -- this is needed in docker containers only
 RUN echo "$LOG_TAG Disable ipv6" && \
     sysctl -w net.ipv6.conf.all.disable_ipv6=1 && \
-    echo -e "Host *\n    AddressFamily inet" >> ~/.ssh/config
+    /bin/echo -e "Host *\n    AddressFamily inet" >> ~/.ssh/config
 ENV _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
 
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
