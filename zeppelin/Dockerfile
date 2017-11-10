@@ -71,7 +71,8 @@ RUN echo "$LOG_TAG Install python related packages" && \
     pip install matplotlib
 
 RUN echo "$LOG_TAG Install R related packages" && \
-    echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | tee -a /etc/apt/sources.list && \
+
+echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | tee -a /etc/apt/sources.list && \
     gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 && \
     gpg -a --export E084DAB9 | apt-key add - && \
     apt-get -y update && \
@@ -112,6 +113,8 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
 
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
 RUN echo "$LOG_TAG Start Hadoop" && \
+    # try and disable ipv6 first -- this is needed in docker containers only
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1
     hdfs namenode -format && \
     start-dfs.sh && \
     hdfs dfs -mkdir /user && \
