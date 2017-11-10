@@ -115,8 +115,8 @@ RUN echo "$LOG_TAG Disable ipv6" && \
     sysctl -w net.ipv6.conf.all.disable_ipv6=1 && \
     /bin/echo -e "Host *\n    AddressFamily inet" >> ~/.ssh/config && \
     # remove and re-install openssh as all else may fail
-    apt-get remove openssh-client openssh-server && \
-    apt-get install openssh-client openssh-server && \
+    # apt-get remove openssh-client openssh-server && \
+    apt-get install -y openssh-client openssh-server && \
 ENV _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
 
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
