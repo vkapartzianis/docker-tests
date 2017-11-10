@@ -99,7 +99,7 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     # TODO: handle xml updates better
     xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/core-site.xml &&\
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "fs.defaultFS" /usr/local/hadoop/etc/hadoop/core-site.xml && \
-    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "hdfs://$(hostname):8020" /usr/local/hadoop/etc/hadoop/core-site.xml && \
+    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "hdfs://127.0.0.1:8020" /usr/local/hadoop/etc/hadoop/core-site.xml && \
     xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "dfs.replication" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "1" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
