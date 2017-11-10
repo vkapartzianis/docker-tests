@@ -104,14 +104,16 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "dfs.replication" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "1" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     # TODO: check if authorization needed
-    # ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
-    # cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
-    # chmod 0600 ~/.ssh/authorized_keys && \
-    # TODO: retrieve user name from environment
-    export PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin && \
+    ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
+    chmod 0600 ~/.ssh/authorized_keys
+
+ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
+RUN echo "$LOG_TAG Start Hadoop" && \
     hdfs namenode -format && \
     start-dfs.sh && \
     hdfs dfs -mkdir /user && \
+    # TODO: retrieve user name from environment
     hdfs dfs -mkdir /user/root
 
 RUN echo "$LOG_TAG Set up Zeppelin" && \
