@@ -71,8 +71,7 @@ RUN echo "$LOG_TAG Install python related packages" && \
     pip install matplotlib
 
 RUN echo "$LOG_TAG Install R related packages" && \
-
-echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | tee -a /etc/apt/sources.list && \
+    echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | tee -a /etc/apt/sources.list && \
     gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9 && \
     gpg -a --export E084DAB9 | apt-key add - && \
     apt-get -y update && \
@@ -98,7 +97,7 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /usr/local/hadoop/etc/hadoop/hadoop-env.sh && \
     apt install xmlstarlet && \
     # TODO: handle xml updates better
-    xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/core-site.xml &&\
+    xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/core-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "fs.defaultFS" /usr/local/hadoop/etc/hadoop/core-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "hdfs://127.0.0.1:8020" /usr/local/hadoop/etc/hadoop/core-site.xml && \
     xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
@@ -114,7 +113,7 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
 RUN echo "$LOG_TAG Start Hadoop" && \
     # try and disable ipv6 first -- this is needed in docker containers only
-    sysctl -w net.ipv6.conf.all.disable_ipv6=1
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1 && \
     hdfs namenode -format && \
     start-dfs.sh && \
     hdfs dfs -mkdir /user && \
