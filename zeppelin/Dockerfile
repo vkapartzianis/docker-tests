@@ -23,12 +23,6 @@ ENV LOG_TAG="[ZEPPELIN_${Z_VERSION}]:" \
     LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8
 
-# try and disable ipv6 first -- this is needed in docker containers only
-RUN echo "$LOG_TAG Disable ipv6" && \
-    sysctl -w net.ipv6.conf.all.disable_ipv6=1 && \
-    echo -e "Host *\n    AddressFamily inet" >> ~/.ssh/config
-ENV _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
-
 RUN echo "$LOG_TAG update and install basic packages" && \
     apt-get -y update && \
     apt-get install -y locales && \
@@ -115,6 +109,12 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     chmod 0600 ~/.ssh/authorized_keys && \
     # disable strict host key checking
     echo "StrictHostKeyChecking no" >> .ssh/config
+
+# try and disable ipv6 first -- this is needed in docker containers only
+RUN echo "$LOG_TAG Disable ipv6" && \
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1 && \
+    echo -e "Host *\n    AddressFamily inet" >> ~/.ssh/config
+ENV _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
 
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
 RUN echo "$LOG_TAG Start Hadoop" && \
