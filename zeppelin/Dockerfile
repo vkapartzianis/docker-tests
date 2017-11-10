@@ -106,7 +106,9 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     # TODO: check if authorization needed
     ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
-    chmod 0600 ~/.ssh/authorized_keys
+    chmod 0600 ~/.ssh/authorized_keys && \
+    # disable strict host key checking
+    echo "StrictHostKeyChecking no" >> .ssh/config
 
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
 RUN echo "$LOG_TAG Start Hadoop" && \
