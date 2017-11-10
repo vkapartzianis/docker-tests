@@ -14,7 +14,7 @@
 # limitations under the License.
 
 FROM ubuntu:16.04
-MAINTAINER Apache Software Foundation <dev@zeppelin.apache.org>
+MAINTAINER Vaggelis Kapartzianis <vkapartzianis@gmail.com>
 
 # `Z_VERSION` will be updated by `dev/change_zeppelin_version.sh`
 ENV Z_VERSION="0.7.3"
@@ -86,11 +86,56 @@ RUN echo "$LOG_TAG Install R related packages" && \
     R -e "install.packages('Rcpp', repos='http://cran.us.r-project.org')" && \
     Rscript -e "library('devtools'); library('Rcpp'); install_github('ramnathv/rCharts')"
 
-RUN echo "$LOG_TAG Download Zeppelin binary" && \
-    wget -O /tmp/zeppelin-${Z_VERSION}-bin-all.tgz http://archive.apache.org/dist/zeppelin/zeppelin-${Z_VERSION}/zeppelin-${Z_VERSION}-bin-all.tgz && \
-    tar -zxvf /tmp/zeppelin-${Z_VERSION}-bin-all.tgz && \
-    rm -rf /tmp/zeppelin-${Z_VERSION}-bin-all.tgz && \
-    mv /zeppelin-${Z_VERSION}-bin-all ${Z_HOME}
+RUN echo "$LOG_TAG Set up Hadoop" && \
+    cd ~ && \
+    wget http://archive.apache.org/dist/hadoop/core/hadoop-2.8.2/hadoop-2.8.2.tar.gz && \
+    tar -zxvf hadoop-2.8.2.tar.gz && \
+    mv hadoop-2.8.2 /usr/local && \
+    ln -s hadoop-2.8.2 /usr/local/hadoop && \
+    rm hadoop-2.8.2.tar.gz && \
+    # see https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html
+    echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /usr/local/hadoop/etc/hadoop/hadoop-env.sh && \
+    apt install xmlstarlet && \
+    # TODO: handle xml updates better
+    xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/core-site.xml &&\
+    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "fs.defaultFS" /usr/local/hadoop/etc/hadoop/core-site.xml && \
+    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "hdfs://localhost:8020" /usr/local/hadoop/etc/hadoop/core-site.xml && \
+    xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
+    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "dfs.replication" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
+    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "1" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
+    # TODO: check if authorization needed
+    ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
+    chmod 0600 ~/.ssh/authorized_keys && \
+    # TODO: retrieve user name from environment
+    export PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin && \
+    hdfs namenode -format && \
+    start-dfs.sh && \
+    hdfs dfs -mkdir /user && \
+    hdfs dfs -mkdir /user/root
+
+RUN echo "$LOG_TAG Set up Zeppelin" && \
+    cd ~ && \
+    wget http://archive.apache.org/dist/zeppelin/zeppelin-${Z_VERSION}/zeppelin-${Z_VERSION}-bin-netinst.tgz && \
+    tar -zxvf zeppelin-${Z_VERSION}-bin-netinst.tgz && \
+    # set up interpreters used in examples
+    zeppelin-${Z_VERSION}-bin-netinst/bin/install-interpreter.sh --name flink,md,pig,python,shell && \
+    mv zeppelin-${Z_VERSION}-bin-netinst /usr/local/zeppelin-${Z_VERSION} && \
+    ln -s zeppelin-${Z_VERSION} /usr/local/zeppelin && \
+    rm zeppelin-${Z_VERSION}-bin-netinst.tgz && \
+    # install for plain python (were installed for conda)
+    /usr/bin/pip install numpy && \
+    /usr/bin/pip install matplotlib && \
+    # needed for "Using Mahout" tutorial TODO: remove this tutorial as the script's missing
+    apt-get install r-cran-scatterplot3d && \
+    # needed for pig interpreter
+    export HADOOP_HOME=/usr/local/hadoop && \
+    # fix py4j problems
+    /usr/bin/pip install py4j && \
+    /opt/conda/bin/pip install py4j && \
+    # update environment for Zeppelin, in case it's needed
+    export PATH=$PATH:/usr/local/zeppelin/bin && \
+    export ZEPPELIN_HOME=/usr/local/zeppelin
 
 RUN echo "$LOG_TAG Cleanup" && \
     apt-get autoclean && \
@@ -100,4 +145,4 @@ EXPOSE 8080
 
 ENTRYPOINT [ "/usr/bin/tini", "--" ]
 WORKDIR ${Z_HOME}
-CMD ["bin/zeppelin.sh"]
+CMD ["/usr/local/zeppelin/bin/zeppelin.sh"]
