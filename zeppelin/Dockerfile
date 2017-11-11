@@ -19,7 +19,7 @@ MAINTAINER Vaggelis Kapartzianis <vkapartzianis@gmail.com>
 # `Z_VERSION` will be updated by `dev/change_zeppelin_version.sh`
 ENV Z_VERSION="0.7.3"
 ENV LOG_TAG="[ZEPPELIN_${Z_VERSION}]:" \
-    Z_HOME="/zeppelin" \
+    Z_HOME="/usr/local/zeppelin" \
     LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8
 
@@ -95,6 +95,7 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     rm hadoop-2.8.2.tar.gz && \
     # see https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html
     echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /usr/local/hadoop/etc/hadoop/hadoop-env.sh && \
+    echo "HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop" >> /usr/local/hadoop/etc/hadoop/hadoop-env.sh && \
     apt install xmlstarlet && \
     # TODO: handle xml updates better
     xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/core-site.xml && \
@@ -103,29 +104,6 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "dfs.replication" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "1" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
-    # TODO: check if authorization needed
-    ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
-    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
-    chmod 0600 ~/.ssh/authorized_keys && \
-    # disable strict host key checking
-    echo "StrictHostKeyChecking no" >> .ssh/config
-
-# try and disable ipv6 first -- this is needed in docker containers only
-RUN echo "$LOG_TAG Disable ipv6" && \
-    sysctl -w net.ipv6.conf.all.disable_ipv6=1 && \
-    /bin/echo -e "Host *\n    AddressFamily inet" >> ~/.ssh/config && \
-    # remove and re-install openssh as all else may fail
-    # apt-get remove openssh-client openssh-server && \
-    apt-get install -y openssh-client openssh-server
-ENV _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
-
-ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
-RUN echo "$LOG_TAG Start Hadoop" && \
-    hdfs namenode -format && \
-    start-dfs.sh && \
-    hdfs dfs -mkdir /user && \
-    # TODO: retrieve user name from environment
-    hdfs dfs -mkdir /user/root
 
 RUN echo "$LOG_TAG Set up Zeppelin" && \
     cd ~ && \
@@ -150,6 +128,21 @@ RUN echo "$LOG_TAG Set up Zeppelin" && \
     export PATH=$PATH:/usr/local/zeppelin/bin && \
     export ZEPPELIN_HOME=/usr/local/zeppelin
 
+# configure ssh -- this section is ONLY needed inside docker containers
+RUN echo "$LOG_TAG Configure SSH" && \
+    apt-get install -y openssh-client openssh-server && \
+    ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key && \
+    ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key && \
+    ssh-keygen -q -N "" -t rsa -f .ssh/id_rsa && \
+    cat .ssh/id_rsa.pub >> .ssh/authorized_keys && \
+    chmod 0600 .ssh/authorized_keys && \
+    /bin/echo -e "Host *\n    AddressFamily inet\n    StrictHostKeyChecking no" >> .ssh/config && \
+
+RUN echo "$LOG_TAG Import entrypoint script"
+COPY entrypoint.sh /etc/entrypoint.sh
+RUN chown root.root /etc/entrypoint.sh && \
+    chmod 700 /etc/entrypoint.sh
+
 RUN echo "$LOG_TAG Cleanup" && \
     apt-get autoclean && \
     apt-get clean
@@ -158,4 +151,4 @@ EXPOSE 8080
 
 ENTRYPOINT [ "/usr/bin/tini", "--" ]
 WORKDIR ${Z_HOME}
-CMD ["/usr/local/zeppelin/bin/zeppelin.sh"]
+CMD ["/etc/entrypoint.sh"]
