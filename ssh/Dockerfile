@@ -3,6 +3,7 @@ MAINTAINER Vaggelis Kapartzianis <vkapartzianis@gmail.com>
 
 RUN echo "$LOG_TAG Configure SSH" && \
     cd ~ && \
+    apt-get -y update && \
     apt-get install -y openssh-client openssh-server && \
     # ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key && \
     # ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key && \
