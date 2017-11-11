@@ -88,6 +88,7 @@ RUN echo "$LOG_TAG Install R related packages" && \
 
 RUN echo "$LOG_TAG Set up Hadoop" && \
     cd ~ && \
+    apt-get install -y openssh-client openssh-server && \
     wget http://archive.apache.org/dist/hadoop/core/hadoop-2.8.2/hadoop-2.8.2.tar.gz && \
     tar -zxvf hadoop-2.8.2.tar.gz && \
     mv hadoop-2.8.2 /usr/local && \
@@ -119,32 +120,14 @@ RUN echo "$LOG_TAG Set up Zeppelin" && \
     /usr/bin/pip install matplotlib && \
     # needed for "Using Mahout" tutorial TODO: remove this tutorial as the script's missing
     apt-get install r-cran-scatterplot3d && \
-    # needed for pig interpreter
-    export HADOOP_HOME=/usr/local/hadoop && \
     # fix py4j problems
     /usr/bin/pip install py4j && \
-    /opt/conda/bin/pip install py4j && \
-    # update environment for Zeppelin, in case it's needed
-    export PATH=$PATH:/usr/local/zeppelin/bin && \
-    export ZEPPELIN_HOME=/usr/local/zeppelin
+    /opt/conda/bin/pip install py4j
 
-# configure ssh -- this section is ONLY needed inside docker containers
-RUN echo "$LOG_TAG Configure SSH" && \
-    apt-get install -y openssh-client openssh-server && \
-    # ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key && \
-    # ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key && \
-    mkdir -p .ssh && \
-    ssh-keygen -q -N "" -t rsa -f .ssh/id_rsa && \
-    cat .ssh/id_rsa.pub >> .ssh/authorized_keys && \
-    chmod 0600 .ssh/authorized_keys && \
-    /bin/echo -e "Host *\n    AddressFamily inet\n    StrictHostKeyChecking no" >> .ssh/config
-
-RUN echo "$LOG_TAG Import entrypoint script"
 COPY entrypoint.sh /etc/entrypoint.sh
-RUN chown root.root /etc/entrypoint.sh && \
-    chmod 700 /etc/entrypoint.sh
-
 RUN echo "$LOG_TAG Cleanup" && \
+    chown root:root /etc/entrypoint.sh && \
+    chmod 700 /etc/entrypoint.sh && \
     apt-get autoclean && \
     apt-get clean
 
