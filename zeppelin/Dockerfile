@@ -103,7 +103,7 @@ RUN echo "$LOG_TAG Set up Hadoop" && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "hdfs://127.0.0.1:8020" /usr/local/hadoop/etc/hadoop/core-site.xml && \
     xmlstarlet ed -P -L -s "/configuration" -t elem -n "property" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
     xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "name" -v "dfs.replication" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
-    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "1" /usr/local/hadoop/etc/hadoop/hdfs-site.xml && \
+    xmlstarlet ed -P -L -s "/configuration/property" -t elem -n "value" -v "1" /usr/local/hadoop/etc/hadoop/hdfs-site.xml
 
 RUN echo "$LOG_TAG Set up Zeppelin" && \
     cd ~ && \
@@ -136,7 +136,7 @@ RUN echo "$LOG_TAG Configure SSH" && \
     ssh-keygen -q -N "" -t rsa -f .ssh/id_rsa && \
     cat .ssh/id_rsa.pub >> .ssh/authorized_keys && \
     chmod 0600 .ssh/authorized_keys && \
-    /bin/echo -e "Host *\n    AddressFamily inet\n    StrictHostKeyChecking no" >> .ssh/config && \
+    /bin/echo -e "Host *\n    AddressFamily inet\n    StrictHostKeyChecking no" >> .ssh/config
 
 RUN echo "$LOG_TAG Import entrypoint script"
 COPY entrypoint.sh /etc/entrypoint.sh
