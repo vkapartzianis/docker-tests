@@ -1,0 +1,32 @@
+version: '3'
+services:
+    zeppelin:
+        # build: ./zeppelin
+        image: vkapartzianis/docker-tests:latest
+        ports:
+            - 8080:8080
+        networks:
+            - frontend
+        volumes:
+            - notebook:/usr/local/zeppelin/notebook
+        deploy:
+            replicas: 2
+            update_config:
+                parallelism: 2
+                delay: 10s
+            restart_policy:
+                condition: on-failure
+    # hadoop:
+    #     image: uhopper/hadoop:2.8.1
+    #     ports:
+    #         - 
+    #     volumes: 
+    #         -
+    #     deploy:
+
+networks:
+    frontend:
+
+volumes:
+    notebook:
+        
