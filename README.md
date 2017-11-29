@@ -6,7 +6,9 @@ https://docs.docker.com/machine/drivers/aws/
 
 ### Specify an AWS profile to use
 
-    export AWS_PROFILE=[profile_name]
+```
+export AWS_PROFILE=[profile_name]
+```
 
 or use your AWS credentials `--amazonec2-access-key`, `--amazonec2-secret-key` in the next command line.
 
@@ -38,7 +40,7 @@ The following ports must be available. On some systems, these ports are open by 
 Open this ports in the AWS console `inbound rules`.
 
 ```
-docker-machine create --driver amazonec2 --amazonec2-region "us-east-1" --amazonec2-instance-type "t2.medium" --swarm-master zp-swarm-1
+docker-machine create --driver amazonec2 --amazonec2-region "us-east-1" --amazonec2-instance-type "t2.medium" --swarm zp-swarm-1
 ```
 
 ### Swarm init
