@@ -84,7 +84,10 @@ RUN echo "$LOG_TAG Install R related packages" && \
     apt-get -y install libcurl4-gnutls-dev libssl-dev && \
     R -e "install.packages('devtools', repos='http://cran.us.r-project.org')" && \
     R -e "install.packages('Rcpp', repos='http://cran.us.r-project.org')" && \
-    Rscript -e "library('devtools'); library('Rcpp'); install_github('ramnathv/rCharts')"
+    Rscript -e "library('devtools'); library('Rcpp'); install_github('ramnathv/rCharts')" && \
+    # INSEAD libraries
+    R -e "install.packages('kableExtra', repos='http://cran.us.r-project.org')" && \
+    Rscript -e "library('devtools'); install_github('vkapartzianis/formattable')"
 
 RUN echo "$LOG_TAG Set up Hadoop" && \
     cd ~ && \
