@@ -25,4 +25,5 @@ hdfs dfs -mkdir -p /user/zeppelin
 
 [ -d /zeppelin ] || mkdir /zeppelin
 [ -f /etc/zeppelin/shiro.ini ] && ln -fs /etc/zeppelin/shiro.ini /usr/local/zeppelin/conf/shiro.ini
+[ -f /usr/local/zeppelin/conf/shiro.ini ] && export ZEPPELIN_NOTEBOOK_PUBLIC="false"
 cd /zeppelin && zeppelin.sh
