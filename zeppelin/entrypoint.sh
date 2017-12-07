@@ -22,4 +22,7 @@ start-dfs.sh
 hdfs dfs -mkdir -p /user
 hdfs dfs -mkdir -p /user/root
 hdfs dfs -mkdir -p /user/zeppelin
-zeppelin.sh
+
+[ -d /zeppelin ] || mkdir /zeppelin
+[ -f /etc/zeppelin/shiro.ini ] && ln -fs /etc/zeppelin/shiro.ini /usr/local/zeppelin/conf/shiro.ini
+cd /zeppelin && zeppelin.sh
