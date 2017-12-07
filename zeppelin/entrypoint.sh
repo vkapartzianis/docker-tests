@@ -25,5 +25,6 @@ hdfs dfs -mkdir -p /user/zeppelin
 
 [ -d /zeppelin ] || mkdir /zeppelin
 [ -f /etc/zeppelin/shiro.ini ] && ln -fs /etc/zeppelin/shiro.ini /usr/local/zeppelin/conf/shiro.ini
+[ -f /etc/zeppelin/notebook-authorization.json ] && ln -fs /etc/zeppelin/notebook-authorization.json /usr/local/zeppelin/conf/notebook-authorization.json
 [ -f /usr/local/zeppelin/conf/shiro.ini ] && export ZEPPELIN_NOTEBOOK_PUBLIC="false"
 cd /zeppelin && zeppelin.sh
