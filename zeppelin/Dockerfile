@@ -130,10 +130,10 @@ RUN echo "$LOG_TAG Set up Zeppelin" && \
 RUN echo "$LOG_TAG Set up shiro-aad" && \
     cd ~ && \
     mkdir shiro-aad && cd shiro-aad && \
-    wget https://repo.maven.apache.org/maven2/com/nitorcreations/shiro-aad/1.0.1/shiro-aad-1.0.1.jar
-    wget -O pom.xml https://repo.maven.apache.org/maven2/com/nitorcreations/shiro-aad/1.0.1/shiro-aad-1.0.1.pom
-    apt-get -y install maven
-    mvn dependency:copy-dependencies -DoutputDirectory=.
+    wget https://repo.maven.apache.org/maven2/com/nitorcreations/shiro-aad/1.0.1/shiro-aad-1.0.1.jar && \
+    wget -O pom.xml https://repo.maven.apache.org/maven2/com/nitorcreations/shiro-aad/1.0.1/shiro-aad-1.0.1.pom && \
+    apt-get -y install maven && \
+    mvn dependency:copy-dependencies -DoutputDirectory=. && \
     yes | cp *.jar /usr/local/zeppelin/lib
     
 COPY entrypoint.sh /etc/entrypoint.sh
