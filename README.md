@@ -6,7 +6,9 @@ https://docs.docker.com/machine/drivers/aws/
 
 ### Specify an AWS profile to use
 
-    export AWS_PROFILE=[profile_name]
+```
+export AWS_PROFILE=[profile_name]
+```
 
 or use your AWS credentials `--amazonec2-access-key`, `--amazonec2-secret-key` in the next command line.
 
@@ -38,7 +40,7 @@ The following ports must be available. On some systems, these ports are open by 
 Open this ports in the AWS console `inbound rules`.
 
 ```
-docker-machine create --driver amazonec2 --amazonec2-region "us-east-1" --amazonec2-instance-type "t2.medium" --swarm-master zp-swarm-1
+docker-machine create --driver amazonec2 --amazonec2-region "us-east-1" --amazonec2-instance-type "t2.medium" --swarm zp-swarm-1
 ```
 
 ### Swarm init
@@ -62,7 +64,7 @@ then paste the command to join the swarm master node:
 ### Deploy the service (app)
 
 ```
-docker service create --hostname localhost -p 8080:8080 --replicas 1 --detach=false --name zeppelin vkapartzianis/docker-tests
+docker service create --hostname localhost -p 8080:8080 --replicas 2 --detach=false --name zeppelin vkapartzianis/docker-tests
 ```
 
 follow the logs
@@ -80,8 +82,13 @@ docker-machine ip
 ## Build a Docker stack based on the docker-compose v3 yml file
 
 * use a docker-compose.yml file
+* split dockerfile dependencies into services (hadoop ?)
 * We may need a docker registry for all nodes to deploy the same image
 
 https://docs.docker.com/engine/swarm/stack-deploy/
 
-...
+## Run docker stack
+
+```
+docker stack deploy -c docker-compose.yml --with-registry-auth zp-stack
+```
